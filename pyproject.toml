@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0", "requests", "pyyaml"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "desota"
+version = "0.0.0"
+authors = [
+  { name="Francisco Vargas"},
+]
+description = "DeSOTA Tools Package"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/desotaai/pip"
+Issues = "https://github.com/DeSOTAai/pip/issues"

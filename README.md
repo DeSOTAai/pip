@@ -1,2 +1,2 @@
-# pip
-pip install desota
+# DeSOTA Preferred Installer Program
+Repository with DeSOTA packages
