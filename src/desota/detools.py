@@ -123,6 +123,12 @@ def get_model_req(req_path: str) -> dict:
 # TODO: Get Deps Args
 #   > TEXT
 def get_request_text(model_request_dict) -> list:
+    """
+    Get Text Arguments from DeSOTA Model request
+
+    :param model_request_dict: model request retrieved from `detools.get_model_req`
+    :return: List with text arguments from model request
+    """
     _req_text = None
     if 'query' in model_request_dict["input_args"]:
         if isinstance(model_request_dict["input_args"]['query'], list):
@@ -146,6 +152,12 @@ def get_request_text(model_request_dict) -> list:
 
 #   > AUDIO
 def get_request_audio(model_request_dict: dict) -> list:
+    """
+    Get (download) Audio Arguments from DeSOTA Model request
+
+    :param model_request_dict: model request retrieved from `detools.get_model_req`
+    :return: List with audio file paths downloaded from model request
+    """
     audio_file = None
     if 'audio' in model_request_dict["input_args"]:
         if isinstance(model_request_dict["input_args"]['audio'], list):
@@ -165,6 +177,12 @@ def get_request_audio(model_request_dict: dict) -> list:
 
 #   > QUESTION-ANSWER
 def get_request_qa(model_request_dict: dict) -> (list, list):
+    """
+    Get Question-Answer Arguments from DeSOTA Model request
+
+    :param model_request_dict: model request retrieved from `detools.get_model_req`
+    :return: Tuple with model request `context` and `questions`, respectivaly
+    """
     _context, _question = None, None
     # Get Context
     if "context" in model_request_dict["input_args"]:
@@ -200,6 +218,12 @@ def get_url_from_file(file_idx):
     return get_url_from_str(file_content)
 
 def get_request_url(model_request_dict: dict) -> list:
+    """
+    Get URL Arguments from DeSOTA Model request
+
+    :param model_request_dict: model request retrieved from `detools.get_model_req`
+    :return: List with URL arguments from model request
+    """
     _req_url = None
     if 'url' in model_request_dict["input_args"]:
         if isinstance(model_request_dict["input_args"]['url'], list):
@@ -282,6 +306,13 @@ def get_html_from_file(file_idx) -> (str, str):
     return file_path, req_file.encoding
 
 def get_request_html(model_request_dict: dict, from_url: bool = False) -> list((str, str)):
+    """
+    Get HTML Files from DeSOTA Model request
+
+    :param model_request_dict: model request retrieved from `detools.get_model_req`
+    :param from_url: [OPTIONAL] Get HTLM file from URL
+    :return: List with html arguments from model request as tuple (html_path, html_encoding)
+    """
     _req_html = None
 
     if not _req_html and 'html' in model_request_dict["input_args"]:
