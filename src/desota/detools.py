@@ -1,6 +1,8 @@
 import os, sys
 import time, requests
 import re, shutil
+import yaml
+from yaml.loader import SafeLoader
 
 # inspired inhttps://stackoverflow.com/a/13874620
 def get_platform():
@@ -90,60 +92,141 @@ def download_file(file_idx, get_file_content=False) -> str:
         user_chown(out_path)
     return out_path
 
+# TOOLS
+def get_model_req(req_path: str) -> dict:
+    """
+    Convert model request, from DeSOTA API the converted to YAML file in [DeRunner](https://github.com/DeSOTAai/DeRunner), into python dictionary format
+    
+    :param req_path: path to model request YAML file 9
+    :return: model request arguments in dictionary format
+    """
+    # About Output
+    '''
+    {
+        "task_type": None,      # TASK VARS
+        "task_model": None,
+        "task_dep": None,
+        "task_args": None,
+        "task_id": None,
+        "filename": None,       # FILE VARS
+        "file_url": None,
+        "text_prompt": None     # TXT VAR
+    }
+    '''
+    if not os.path.isfile(req_path):
+        exit(1)
+    with open(req_path) as f:
+        return yaml.load(f, Loader=SafeLoader)
 
-# DECODE DESOTA API MODELS REQUESTS 
+
+# MODELS
+# TODO: Get Deps Args
 #   > TEXT
-def get_request_text(model_request_dict) -> str:
+def get_request_text(model_request_dict) -> list:
     _req_text = None
     if 'query' in model_request_dict["input_args"]:
-        _req_text = download_file(model_request_dict["input_args"]['query'], get_file_content=True)
+        if isinstance(model_request_dict["input_args"]['query'], list):
+            _req_text = []
+            for query in model_request_dict["input_args"]['query']:
+                _req_text.append(download_file(query, get_file_content=True))
     
     if 'text_prompt' in model_request_dict["input_args"]:
-        _req_text = download_file(model_request_dict["input_args"]['text_prompt'], get_file_content=True)
+        if isinstance(model_request_dict["input_args"]['text_prompt'], list):
+            _req_text = []
+            for text_prompt in model_request_dict["input_args"]['text_prompt']:
+                _req_text.append(download_file(text_prompt, get_file_content=True))
+    if not _req_text and 'file' in model_request_dict["input_args"]:
+        if isinstance(model_request_dict["input_args"]['file'], list):
+            _req_text = []
+            for file_idx in model_request_dict["input_args"]['file']:
+                if "file_url" in file_idx:
+                    _req_text.append(download_file(file_idx["file_url"], get_file_content=True))
     
-    if not _req_text and 'file' in model_request_dict["input_args"] and "file_url" in model_request_dict["input_args"]["file"]:
-        _req_text = get_file_content(model_request_dict["input_args"]['file']['file_url'])
-
     return _req_text
 
 #   > AUDIO
-def get_request_audio(model_request_dict, target_dist) -> str:
+def get_request_audio(model_request_dict: dict) -> list:
     audio_file = None
-    if 'audio' in model_request_dict["input_args"] and "file_url" in model_request_dict["input_args"]["audio"]:
-        audio_file = download_file(model_request_dict["input_args"]["audio"]["file_url"])
-    elif 'file' in model_request_dict["input_args"] and "file_url" in model_request_dict["input_args"]["file"]:
+    if 'audio' in model_request_dict["input_args"]:
+        if isinstance(model_request_dict["input_args"]['audio'], list):
+            audio_file = []
+            for audio in model_request_dict["input_args"]['audio']:
+                if "file_url" in audio:
+                    audio_file.append(download_file(audio["file_url"], get_file_content=True))
+    elif 'file' in model_request_dict["input_args"]:
+        if isinstance(model_request_dict["input_args"]['file'], list):
+            audio_file = []
+            for file_idx in model_request_dict["input_args"]['file']:
+                if "file_url" in file_idx:
+                    audio_file.append(download_file(file_idx["file_url"], get_file_content=True))
+    
         audio_file = download_file(model_request_dict["input_args"]["file"]["file_url"])
     return audio_file
 
 #   > QUESTION-ANSWER
-def get_request_qa(model_request_dict) -> (str, str):
+def get_request_qa(model_request_dict: dict) -> (list, list):
     _context, _question = None, None
-    if "context" in model_request_dict["input_args"] and "question" in model_request_dict["input_args"]:
-        _context = download_file(model_request_dict["input_args"]["context"], get_file_content=True)
-        _question = download_file(model_request_dict["input_args"]["question"], get_file_content=True)
+    # Get Context
+    if "context" in model_request_dict["input_args"]:
+        if isinstance(model_request_dict["input_args"]['context'], list):
+            _context = []
+            for question in model_request_dict["input_args"]['context']:
+                _context.append(download_file(question, get_file_content=True))   
+    if not _context and 'file' in model_request_dict["input_args"]:
+        if isinstance(model_request_dict["input_args"]['file'], list):
+            _context = []
+            for file_idx in model_request_dict["input_args"]['file']:
+                if "file_url" in file_idx:
+                    _context.append(download_file(file_idx["file_url"], get_file_content=True))
+    
+    # Get Question
+    if "question" in model_request_dict["input_args"]:
+        if isinstance(model_request_dict["input_args"]['question'], list):
+            _question = []
+            for question in model_request_dict["input_args"]['question']:
+                _question.append(download_file(question, get_file_content=True))    
+    if not _question and 'text_prompt' in model_request_dict["input_args"]:
+        if isinstance(model_request_dict["input_args"]['text_prompt'], list):
+            _question = []
+            for text_prompt in model_request_dict["input_args"]['text_prompt']:
+                _question.append(download_file(text_prompt, get_file_content=True))
 
     return _context, _question
+
 
 #   > URL
 def get_url_from_file(file_idx):
     file_content = download_file(file_idx, get_file_content=True)
     return get_url_from_str(file_content)
 
-def get_request_url(model_request_dict) -> str:
+def get_request_url(model_request_dict: dict) -> list:
     _req_url = None
     if 'url' in model_request_dict["input_args"]:
-        _req_url = get_url_from_str(model_request_dict["input_args"]['url'])
-        if not _req_url:
-            _req_url = get_url_from_file(model_request_dict["input_args"]['url'])
+        if isinstance(model_request_dict["input_args"]['url'], list):
+            _req_url = []
+            for curr_url in model_request_dict["input_args"]['url']:
+                inst_url = get_url_from_str(curr_url)
+                print("UTILS:", inst_url)
+                if not inst_url:
+                    inst_url = get_url_from_file(curr_url)
+                if inst_url:
+                    _req_url += inst_url
             
-    if not _req_url and 'file' in model_request_dict["input_args"] and "file_url" in model_request_dict["input_args"]["file"]:
-        _req_url = get_url_from_file(model_request_dict["input_args"]['file']['file_url'])
+    if not _req_url and 'file' in model_request_dict["input_args"]:
+        if isinstance(model_request_dict["input_args"]['file'], list):
+            _req_url = []
+            for file_idx in model_request_dict["input_args"]['file']:
+                if "file_url" in file_idx:
+                    _req_url.append(download_file(file_idx["file_url"]))
 
     if not _req_url and 'text_prompt' in model_request_dict["input_args"]:
-        _req_url = get_url_from_str(model_request_dict["input_args"]['text_prompt'])
-        if not _req_url:
-            _req_url = get_url_from_file(model_request_dict["input_args"]['text_prompt'])
-    
+        if isinstance(model_request_dict["input_args"]['text_prompt'], list):
+            _req_url = []
+            for text_prompt in model_request_dict["input_args"]['text_prompt']:
+                inst_url = get_url_from_str(text_prompt)
+                if not _req_url:
+                    inst_url = get_url_from_file(text_prompt)
+                _req_url.append(download_file(inst_url, get_file_content=True))
     return _req_url
 
 #   > HTML
@@ -162,11 +245,15 @@ def get_html_from_str(string):
 
 def get_html_from_file(file_idx) -> (str, str):
     _search_in_file_idx, _encoding = get_html_from_str(file_idx)
-    if _search_in_file_idx != file_idx:
+    if _search_in_file_idx:
         return _search_in_file_idx, _encoding
         
     base_filename = os.path.basename(file_idx)
     file_path = os.path.join(TMP_PATH, base_filename)
+    file_tmp_path = os.path.join(TMP_PATH, "tmp_"+base_filename)
+    if not file_path.endswith(".html"):
+        file_path += ".html"
+        file_tmp_path += ".html"
     with  requests.get(file_idx, stream=True) as req_file:
         if req_file.status_code != 200:
             return None, None
@@ -174,31 +261,52 @@ def get_html_from_file(file_idx) -> (str, str):
         if req_file.encoding is None:
             req_file.encoding = 'utf-8'
 
-        with open(file_path, 'w') as fw:
+        with open(file_tmp_path, 'w') as fw:
             fw.write("")
-        with open(file_path, 'a', encoding=req_file.encoding) as fa:
+        with open(file_tmp_path, 'a', encoding=req_file.encoding) as fa:
             for line in req_file.iter_lines(decode_unicode=True):
                 if line:
                     fa.write(f"{line}\n")
                     # shutil.copyfileobj(req_file.raw, fwb)
-    
+        
+        if req_file.encoding != 'utf-8':
+            # inspired in https://stackoverflow.com/a/191455
+            # alternative: https://superuser.com/a/1688176
+            try:
+                with open(file_tmp_path, 'rb') as source:
+                    with open(file_path, "w") as recode:
+                        recode.write(str(source.read().decode(req_file.encoding).encode("utf-8").decode("utf-8")))
+                req_file.encoding = 'utf-8'
+            except:
+                file_path = file_tmp_path
     return file_path, req_file.encoding
 
-def get_request_html(model_request_dict, from_url=False) -> (str, str):
-    html_file = None
-    html_encoding = None
-    if from_url and 'url' in model_request_dict["input_args"]:
-        in_arg = model_request_dict["input_args"]["url"]
-        html_file, html_encoding = get_html_from_file(in_arg)
+def get_request_html(model_request_dict: dict, from_url: bool = False) -> list((str, str)):
+    _req_html = None
 
-    if not html_file and 'html' in model_request_dict["input_args"]:
-        in_arg = model_request_dict["input_args"]["html"]
-        html_file, html_encoding = get_html_from_file(in_arg)
+    if not _req_html and 'html' in model_request_dict["input_args"]:
+        if isinstance(model_request_dict["input_args"]['html'], list):
+            _req_html = []
+            for html in model_request_dict["input_args"]['html']:
+                _req_html.append(get_html_from_file(html))
 
-    if not html_file and 'file' in model_request_dict["input_args"] and "file_url" in model_request_dict["input_args"]["file"]:
-        html_file, html_encoding = get_html_from_file(model_request_dict["input_args"]["file"]["file_url"])
-            
-    if not html_file and 'text_prompt' in model_request_dict["input_args"]:
-        html_file, html_encoding = get_html_from_file(model_request_dict["input_args"]['text_prompt'])
-        
-    return html_file, html_encoding
+    if not _req_html and 'file' in model_request_dict["input_args"]:
+    #and "file_url" in model_request_dict["input_args"]["file"]:
+        if isinstance(model_request_dict["input_args"]['file'], list):
+            _req_html = []
+            for file_idx in model_request_dict["input_args"]['file']:
+                if "file_url" in file_idx:
+                    _req_html.append(get_html_from_file(file_idx["file_url"]))
+
+    if not _req_html and 'url' in model_request_dict["input_args"]:
+        if isinstance(model_request_dict["input_args"]['url'], list):
+            _req_html = []
+            for url in model_request_dict["input_args"]['url']:
+                _req_html.append(get_html_from_file(url))
+
+    if not _req_html and 'text_prompt' in model_request_dict["input_args"]:
+        if isinstance(model_request_dict["input_args"]['text_prompt'], list):
+            _req_html = []
+            for text_prompt in model_request_dict["input_args"]['text_prompt']:
+                _req_html.append(get_html_from_file(text_prompt))
+    return _req_html
