@@ -164,15 +164,7 @@ def get_request_file(model_request_dict: dict) -> list:
             file_file = []
             for file in model_request_dict["input_args"]['file']:
                 if "file_url" in file:
-                    file_file.append(download_file(file["file_url"], get_file_content=True))
-    elif 'file' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['file'], list):
-            file_file = []
-            for file_idx in model_request_dict["input_args"]['file']:
-                if "file_url" in file_idx:
-                    file_file.append(download_file(file_idx["file_url"], get_file_content=True))
-    
-        #file_file = download_file(model_request_dict["input_args"]["file"]["file_url"])
+                    file_file.append(download_file(file["file_url"]))
     return file_file
 
 #   > IMAGE
@@ -189,15 +181,13 @@ def get_request_image(model_request_dict: dict) -> list:
             image_file = []
             for image in model_request_dict["input_args"]['image']:
                 if "file_url" in image:
-                    image_file.append(download_file(image["file_url"], get_file_content=True))
+                    image_file.append(download_file(image["file_url"]))
     elif 'file' in model_request_dict["input_args"]:
         if isinstance(model_request_dict["input_args"]['file'], list):
             image_file = []
             for file_idx in model_request_dict["input_args"]['file']:
                 if "file_url" in file_idx:
-                    image_file.append(download_file(file_idx["file_url"], get_file_content=True))
-    
-        #image_file = download_file(model_request_dict["input_args"]["file"]["file_url"])
+                    image_file.append(download_file(file_idx["file_url"]))
     return image_file
 
 #   > AUDIO
@@ -214,15 +204,13 @@ def get_request_audio(model_request_dict: dict) -> list:
             audio_file = []
             for audio in model_request_dict["input_args"]['audio']:
                 if "file_url" in audio:
-                    audio_file.append(download_file(audio["file_url"], get_file_content=True))
+                    audio_file.append(download_file(audio["file_url"]))
     elif 'file' in model_request_dict["input_args"]:
         if isinstance(model_request_dict["input_args"]['file'], list):
             audio_file = []
             for file_idx in model_request_dict["input_args"]['file']:
                 if "file_url" in file_idx:
-                    audio_file.append(download_file(file_idx["file_url"], get_file_content=True))
-    
-        #audio_file = download_file(model_request_dict["input_args"]["file"]["file_url"])
+                    audio_file.append(download_file(file_idx["file_url"]))
     return audio_file
 
 #   > VIDEO
@@ -239,15 +227,13 @@ def get_request_video(model_request_dict: dict) -> list:
             video_file = []
             for video in model_request_dict["input_args"]['video']:
                 if "file_url" in video:
-                    video_file.append(download_file(video["file_url"], get_file_content=True))
+                    video_file.append(download_file(video["file_url"]))
     elif 'file' in model_request_dict["input_args"]:
         if isinstance(model_request_dict["input_args"]['file'], list):
             video_file = []
             for file_idx in model_request_dict["input_args"]['file']:
                 if "file_url" in file_idx:
-                    video_file.append(download_file(file_idx["file_url"], get_file_content=True))
-    
-        #video_file = download_file(model_request_dict["input_args"]["file"]["file_url"])
+                    video_file.append(download_file(file_idx["file_url"]))
     return video_file
 
 

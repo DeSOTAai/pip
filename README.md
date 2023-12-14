@@ -10,7 +10,7 @@ pip install desota
 from desota import detools
 ```
 ### detools.get_model_req
-Convert model request, from DeSOTA API the converted to YAML file in [DeRunner](https://github.com/DeSOTAai/DeRunner), into python dictionary format
+Converts the model request, a YAML file created BY [DeRunner](https://github.com/DeSOTAai/DeRunner), into a python dictionary.
 ```
 def get_model_req(req_path: str) -> dict:
     """
@@ -24,7 +24,7 @@ Get Text Arguments from DeSOTA Model request
 def get_request_text(model_request_dict) -> list:
     """
     :param model_request_dict: model request retrieved from `detools.get_model_req`
-    :return: List with text arguments from model request
+    :return: List[] with text arguments from model request
     """ 
 ```
 ### detools.get_request_audio
@@ -33,7 +33,34 @@ Get (download) Audio Arguments from DeSOTA Model request
 def get_request_audio(model_request_dict: dict) -> list:
     """
     :param model_request_dict: model request retrieved from `detools.get_model_req`
-    :return: List with audio file paths downloaded from model request
+    :return: List[] with audio file paths downloaded from model request
+    """ 
+```
+### detools.get_request_video
+Get (download) Video Arguments from DeSOTA Model request
+```
+def get_request_video(model_request_dict: dict) -> list:
+    """
+    :param model_request_dict: model request retrieved from `detools.get_model_req`
+    :return: List[] with video file paths downloaded from model request
+    """ 
+```
+### detools.get_request_image
+Get (download) Image Arguments from DeSOTA Model request
+```
+def get_request_image(model_request_dict: dict) -> list:
+    """
+    :param model_request_dict: model request retrieved from `detools.get_model_req`
+    :return: List[] with image file paths downloaded from model request
+    """ 
+```
+### detools.get_request_file
+Get (download) File Arguments from DeSOTA Model request
+```
+def get_request_file(model_request_dict: dict) -> list:
+    """
+    :param model_request_dict: model request retrieved from `detools.get_model_req`
+    :return: List[] with file paths downloaded from model request
     """ 
 ```
 ### detools.get_request_qa
@@ -42,7 +69,7 @@ Get Question-Answer Arguments from DeSOTA Model request
 def get_request_qa(model_request_dict: dict) -> (list, list):
     """
     :param model_request_dict: model request retrieved from `detools.get_model_req`
-    :return: Tuple with model request `context` and `questions`, respectivaly
+    :return: Tuple() with model request `context` and `questions`, respectively.
     """ 
 ```
 ### detools.get_request_url
@@ -51,7 +78,7 @@ Get URL Arguments from DeSOTA Model request
 def get_request_url(model_request_dict: dict) -> list:
     """
     :param model_request_dict: model request retrieved from `detools.get_model_req`
-    :return: List with URL arguments from model request
+    :return: List[] with URL arguments from model request
     """ 
 ```
 ### detools.get_request_html
@@ -61,6 +88,6 @@ def get_request_html(model_request_dict: dict, from_url: bool = False) -> list((
     """
     :param model_request_dict: model request retrieved from `detools.get_model_req`
     :param from_url: [OPTIONAL] Get HTLM file from URL
-    :return: List with html arguments from model request as tuple (html_path, html_encoding)
+    :return: List[] with html arguments from model request as tuple (html_path, html_encoding)
     """ 
 ```
