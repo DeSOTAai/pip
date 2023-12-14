@@ -150,6 +150,56 @@ def get_request_text(model_request_dict) -> list:
     
     return _req_text
 
+#   > FILE
+def get_request_file(model_request_dict: dict) -> list:
+    """
+    Get (download) File Arguments from DeSOTA Model request
+
+    :param model_request_dict: model request retrieved from `detools.get_model_req`
+    :return: List with General file file paths downloaded from model request
+    """
+    file_file = None
+    if 'file' in model_request_dict["input_args"]:
+        if isinstance(model_request_dict["input_args"]['file'], list):
+            file_file = []
+            for file in model_request_dict["input_args"]['file']:
+                if "file_url" in file:
+                    file_file.append(download_file(file["file_url"], get_file_content=True))
+    elif 'file' in model_request_dict["input_args"]:
+        if isinstance(model_request_dict["input_args"]['file'], list):
+            file_file = []
+            for file_idx in model_request_dict["input_args"]['file']:
+                if "file_url" in file_idx:
+                    file_file.append(download_file(file_idx["file_url"], get_file_content=True))
+    
+        #file_file = download_file(model_request_dict["input_args"]["file"]["file_url"])
+    return file_file
+
+#   > IMAGE
+def get_request_image(model_request_dict: dict) -> list:
+    """
+    Get (download) Image Arguments from DeSOTA Model request
+
+    :param model_request_dict: model request retrieved from `detools.get_model_req`
+    :return: List with image file paths downloaded from model request
+    """
+    image_file = None
+    if 'image' in model_request_dict["input_args"]:
+        if isinstance(model_request_dict["input_args"]['image'], list):
+            image_file = []
+            for image in model_request_dict["input_args"]['image']:
+                if "file_url" in image:
+                    image_file.append(download_file(image["file_url"], get_file_content=True))
+    elif 'file' in model_request_dict["input_args"]:
+        if isinstance(model_request_dict["input_args"]['file'], list):
+            image_file = []
+            for file_idx in model_request_dict["input_args"]['file']:
+                if "file_url" in file_idx:
+                    image_file.append(download_file(file_idx["file_url"], get_file_content=True))
+    
+        #image_file = download_file(model_request_dict["input_args"]["file"]["file_url"])
+    return image_file
+
 #   > AUDIO
 def get_request_audio(model_request_dict: dict) -> list:
     """
@@ -172,8 +222,34 @@ def get_request_audio(model_request_dict: dict) -> list:
                 if "file_url" in file_idx:
                     audio_file.append(download_file(file_idx["file_url"], get_file_content=True))
     
-        audio_file = download_file(model_request_dict["input_args"]["file"]["file_url"])
+        #audio_file = download_file(model_request_dict["input_args"]["file"]["file_url"])
     return audio_file
+
+#   > VIDEO
+def get_request_video(model_request_dict: dict) -> list:
+    """
+    Get (download) Video Arguments from DeSOTA Model request
+
+    :param model_request_dict: model request retrieved from `detools.get_model_req`
+    :return: List with video file paths downloaded from model request
+    """
+    video_file = None
+    if 'video' in model_request_dict["input_args"]:
+        if isinstance(model_request_dict["input_args"]['video'], list):
+            video_file = []
+            for video in model_request_dict["input_args"]['video']:
+                if "file_url" in video:
+                    video_file.append(download_file(video["file_url"], get_file_content=True))
+    elif 'file' in model_request_dict["input_args"]:
+        if isinstance(model_request_dict["input_args"]['file'], list):
+            video_file = []
+            for file_idx in model_request_dict["input_args"]['file']:
+                if "file_url" in file_idx:
+                    video_file.append(download_file(file_idx["file_url"], get_file_content=True))
+    
+        #video_file = download_file(model_request_dict["input_args"]["file"]["file_url"])
+    return video_file
+
 
 #   > QUESTION-ANSWER
 def get_request_qa(model_request_dict: dict) -> (list, list):
