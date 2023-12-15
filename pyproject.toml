@@ -6,8 +6,8 @@ build-backend = "setuptools.build_meta"
 name = "desota"
 version = "0.0.2"
 authors = [
-  { author="Francisco Vargas", email="87917356+franciscomvargas@users.noreply.github.com"},
-  { author="Kristian Atanasov", email="27017759+spacewalkingninja@users.noreply.github.com"},
+    "Francisco Vargas <87917356+franciscomvargas@users.noreply.github.com>",
+    "Kristian Atanasov <27017759+spacewalkingninja@users.noreply.github.com>",
 ]
 description = "DeSOTA Tools Package"
 readme = "README.md"
