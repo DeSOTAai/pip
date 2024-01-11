@@ -131,20 +131,30 @@ def get_request_text(model_request_dict) -> list:
     """
     _req_text = None
     if 'query' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['query'], list):
+        _input_target = model_request_dict["input_args"]['query']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             _req_text = []
-            for query in model_request_dict["input_args"]['query']:
+            for query in _input_target:
                 _req_text.append(download_file(query, get_file_content=True))
     
-    if 'text_prompt' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['text_prompt'], list):
+    if not _req_text and 'text_prompt' in model_request_dict["input_args"]:
+        _input_target = model_request_dict["input_args"]['text_prompt']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             _req_text = []
-            for text_prompt in model_request_dict["input_args"]['text_prompt']:
+            for text_prompt in _input_target:
                 _req_text.append(download_file(text_prompt, get_file_content=True))
+    
     if not _req_text and 'file' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['file'], list):
+        _input_target = model_request_dict["input_args"]['file']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             _req_text = []
-            for file_idx in model_request_dict["input_args"]['file']:
+            for file_idx in _input_target:
                 if "file_url" in file_idx:
                     _req_text.append(download_file(file_idx["file_url"], get_file_content=True))
     
@@ -160,9 +170,12 @@ def get_request_file(model_request_dict: dict) -> list:
     """
     file_file = None
     if 'file' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['file'], list):
+        _input_target = model_request_dict["input_args"]['file']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             file_file = []
-            for file in model_request_dict["input_args"]['file']:
+            for file in _input_target:
                 if "file_url" in file:
                     file_file.append(download_file(file["file_url"]))
     return file_file
@@ -177,15 +190,21 @@ def get_request_image(model_request_dict: dict) -> list:
     """
     image_file = None
     if 'image' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['image'], list):
+        _input_target = model_request_dict["input_args"]['image']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             image_file = []
-            for image in model_request_dict["input_args"]['image']:
+            for image in _input_target:
                 if "file_url" in image:
                     image_file.append(download_file(image["file_url"]))
     elif 'file' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['file'], list):
+        _input_target = model_request_dict["input_args"]['file']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             image_file = []
-            for file_idx in model_request_dict["input_args"]['file']:
+            for file_idx in _input_target:
                 if "file_url" in file_idx:
                     image_file.append(download_file(file_idx["file_url"]))
     return image_file
@@ -200,15 +219,21 @@ def get_request_audio(model_request_dict: dict) -> list:
     """
     audio_file = None
     if 'audio' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['audio'], list):
+        _input_target = model_request_dict["input_args"]['audio']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             audio_file = []
-            for audio in model_request_dict["input_args"]['audio']:
+            for audio in _input_target:
                 if "file_url" in audio:
                     audio_file.append(download_file(audio["file_url"]))
     elif 'file' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['file'], list):
+        _input_target = model_request_dict["input_args"]['file']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             audio_file = []
-            for file_idx in model_request_dict["input_args"]['file']:
+            for file_idx in _input_target:
                 if "file_url" in file_idx:
                     audio_file.append(download_file(file_idx["file_url"]))
     return audio_file
@@ -223,15 +248,21 @@ def get_request_video(model_request_dict: dict) -> list:
     """
     video_file = None
     if 'video' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['video'], list):
+        _input_target = model_request_dict["input_args"]['video']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             video_file = []
-            for video in model_request_dict["input_args"]['video']:
+            for video in _input_target:
                 if "file_url" in video:
                     video_file.append(download_file(video["file_url"]))
     elif 'file' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['file'], list):
+        _input_target = model_request_dict["input_args"]['file']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             video_file = []
-            for file_idx in model_request_dict["input_args"]['file']:
+            for file_idx in _input_target:
                 if "file_url" in file_idx:
                     video_file.append(download_file(file_idx["file_url"]))
     return video_file
@@ -248,27 +279,39 @@ def get_request_qa(model_request_dict: dict) -> (list, list):
     _context, _question = None, None
     # Get Context
     if "context" in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['context'], list):
+        _input_target = model_request_dict["input_args"]['context']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             _context = []
-            for question in model_request_dict["input_args"]['context']:
+            for question in _input_target:
                 _context.append(download_file(question, get_file_content=True))   
     if not _context and 'file' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['file'], list):
+        _input_target = model_request_dict["input_args"]['file']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             _context = []
-            for file_idx in model_request_dict["input_args"]['file']:
+            for file_idx in _input_target:
                 if "file_url" in file_idx:
                     _context.append(download_file(file_idx["file_url"], get_file_content=True))
     
     # Get Question
     if "question" in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['question'], list):
+        _input_target = model_request_dict["input_args"]['question']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             _question = []
-            for question in model_request_dict["input_args"]['question']:
+            for question in _input_target:
                 _question.append(download_file(question, get_file_content=True))    
     if not _question and 'text_prompt' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['text_prompt'], list):
+        _input_target = model_request_dict["input_args"]['text_prompt']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             _question = []
-            for text_prompt in model_request_dict["input_args"]['text_prompt']:
+            for text_prompt in _input_target:
                 _question.append(download_file(text_prompt, get_file_content=True))
 
     return _context, _question
@@ -288,9 +331,12 @@ def get_request_url(model_request_dict: dict) -> list:
     """
     _req_url = None
     if 'url' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['url'], list):
+        _input_target = model_request_dict["input_args"]['url']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             _req_url = []
-            for curr_url in model_request_dict["input_args"]['url']:
+            for curr_url in _input_target:
                 inst_url = get_url_from_str(curr_url)
                 print("UTILS:", inst_url)
                 if not inst_url:
@@ -299,16 +345,22 @@ def get_request_url(model_request_dict: dict) -> list:
                     _req_url += inst_url
             
     if not _req_url and 'file' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['file'], list):
+        _input_target = model_request_dict["input_args"]['file']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             _req_url = []
-            for file_idx in model_request_dict["input_args"]['file']:
+            for file_idx in _input_target:
                 if "file_url" in file_idx:
                     _req_url.append(download_file(file_idx["file_url"]))
 
     if not _req_url and 'text_prompt' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['text_prompt'], list):
+        _input_target = model_request_dict["input_args"]['text_prompt']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             _req_url = []
-            for text_prompt in model_request_dict["input_args"]['text_prompt']:
+            for text_prompt in _input_target:
                 inst_url = get_url_from_str(text_prompt)
                 if not _req_url:
                     inst_url = get_url_from_file(text_prompt)
@@ -378,28 +430,40 @@ def get_request_html(model_request_dict: dict, from_url: bool = False) -> list((
     _req_html = None
 
     if not _req_html and 'html' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['html'], list):
+        _input_target = model_request_dict["input_args"]['html']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             _req_html = []
-            for html in model_request_dict["input_args"]['html']:
+            for html in _input_target:
                 _req_html.append(get_html_from_file(html))
 
     if not _req_html and 'file' in model_request_dict["input_args"]:
-    #and "file_url" in model_request_dict["input_args"]["file"]:
-        if isinstance(model_request_dict["input_args"]['file'], list):
+        _input_target = model_request_dict["input_args"]['file']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             _req_html = []
-            for file_idx in model_request_dict["input_args"]['file']:
+            for file_idx in _input_target:
                 if "file_url" in file_idx:
                     _req_html.append(get_html_from_file(file_idx["file_url"]))
 
     if not _req_html and 'url' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['url'], list):
+        _input_target = model_request_dict["input_args"]['url']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             _req_html = []
-            for url in model_request_dict["input_args"]['url']:
+            for url in _input_target:
                 _req_html.append(get_html_from_file(url))
 
     if not _req_html and 'text_prompt' in model_request_dict["input_args"]:
-        if isinstance(model_request_dict["input_args"]['text_prompt'], list):
+        _input_target = model_request_dict["input_args"]['text_prompt']
+        if isinstance(_input_target, str):
+            _input_target = [_input_target]
+        if isinstance(_input_target, list):
             _req_html = []
-            for text_prompt in model_request_dict["input_args"]['text_prompt']:
+            for text_prompt in _input_target:
                 _req_html.append(get_html_from_file(text_prompt))
+    
     return _req_html
