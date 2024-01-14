@@ -352,7 +352,7 @@ def get_request_url(model_request_dict: dict) -> list:
             _req_url = []
             for file_idx in _input_target:
                 if "file_url" in file_idx:
-                    _req_url.append(download_file(file_idx["file_url"]))
+                    _req_url = get_url_from_file(file_idx["file_url"])
 
     if not _req_url and 'text_prompt' in model_request_dict["input_args"]:
         _input_target = model_request_dict["input_args"]['text_prompt']
@@ -364,7 +364,8 @@ def get_request_url(model_request_dict: dict) -> list:
                 inst_url = get_url_from_str(text_prompt)
                 if not _req_url:
                     inst_url = get_url_from_file(text_prompt)
-                _req_url.append(download_file(inst_url, get_file_content=True))
+                if inst_url:
+                    _req_url += inst_url
     return _req_url
 
 #   > HTML
