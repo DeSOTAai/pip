@@ -117,12 +117,19 @@ def get_model_req(req_path: str) -> dict:
         exit(1)
     with open(req_path) as f:
         return yaml.load(f, Loader=SafeLoader)
-
+#
+def get_model_args(model_req: dict) -> dict:
+    try:
+        assert model_req['input_args']['model_args']
+        return model_req['input_args']['model_args']
+    except Exception:
+        return None
+    
 
 # MODELS
 # TODO: Get Deps Args
 #   > TEXT
-def get_request_text(model_request_dict) -> list:
+def get_request_text(model_request_dict: dict) -> list:
     """
     Get Text Arguments from DeSOTA Model request
 
