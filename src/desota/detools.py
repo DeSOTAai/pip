@@ -75,7 +75,7 @@ def retrieve_file_content(file_idx) -> str:
 def download_file(file_idx, get_file_content=False) -> str:
     if get_file_content:
         return retrieve_file_content(file_idx)
-    out_path = os.path.join(TMP_PATH, os.path.basename(file_idx))
+    out_path = os.path.join(TMP_PATH, str(os.path.basename(file_idx).split('/')[-1].split('?')[0]))
     if os.path.isfile(file_idx):
         return file_idx
     file_url = get_url_from_str(file_idx)
