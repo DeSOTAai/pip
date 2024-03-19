@@ -67,4 +67,10 @@ from desota import detools
     Get HTML Files from DeSOTA Model request
 
 ---
+
+* [detools.upload_request_files]
+
+    Upload Model Result to DeSOTA and then (Optionally) delete temp files
+
+---
 ---

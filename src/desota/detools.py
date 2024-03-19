@@ -4,6 +4,17 @@ import re, shutil
 import yaml
 from yaml.loader import SafeLoader
 
+
+from requests.adapters import HTTPAdapter, Retry
+
+s = requests.Session()
+
+retries = Retry(total=5,
+                backoff_factor=0.1,
+                status_forcelist=[ 500, 502, 503, 504 ])
+
+s.mount('https://', HTTPAdapter(max_retries=retries))
+
 # inspired inhttps://stackoverflow.com/a/13874620
 def get_platform():
     _platform = sys.platform
@@ -60,7 +71,7 @@ def retrieve_file_content(file_idx) -> str:
     if not file_url or not file_ext:
         return file_idx
     file_content = ""
-    with  requests.get(file_idx, stream=True) as req_file:
+    with  s.get(file_idx, stream=True) as req_file:
         if req_file.status_code != 200:
             return file_idx
         
@@ -84,7 +95,7 @@ def download_file(file_idx, get_file_content=False) -> str:
     file_ext = os.path.splitext(file_url[0])[1] if file_url else None
     if not file_url or not file_ext:
         return file_idx
-    with requests.get(file_idx, stream=True) as r:
+    with s.get(file_idx, stream=True) as r:
         if r.status_code != 200:
             return file_idx
         with open(out_path, 'wb') as f:
@@ -475,3 +486,73 @@ def get_request_html(model_request_dict: dict, from_url: bool = False) -> list((
                 _req_html.append(get_html_from_file(text_prompt))
     
     return _req_html
+
+
+
+def upload_request_files(file_paths: list, send_task_url: str, delete_files:bool =True) -> requests.Response:
+    """
+    Upload Model Result to DeSOTA and then OPTIONALLY delete temp files
+
+    :param file_paths: list - valid filepaths to all results from the model
+    :param send_task_url: string - model request retrieved from init
+    :param delete_files: [OPTIONAL] bool - default true
+    :return: desota api request response 
+    """
+    saved_file_names = []
+    media_file_names = []
+    text_files_to_upload = []
+    
+
+    for file_path in file_paths:
+        file_name = os.path.basename(file_path)
+        file_extension = file_name.split('.')[-1].lower()
+
+        if file_extension in ['txt', 'md', 'srt']:
+            text_files_to_upload.append((file_name, file_path))
+            continue
+        media_file_names.append(file_name)
+
+    if media_file_names:
+        # Get presigned URL for all media files
+        payload = {
+            'getPresignedUrl': 1,
+            'saveFileName': ','.join(media_file_names)
+        }
+        send_task = s.post(url=send_task_url, data=payload)
+        presigned_urls = send_task.json()
+
+        for file_name, presigned_url in presigned_urls['index'].items():
+            if presigned_url != 'fileTypeError':
+                for file_path in file_paths:
+                    if file_name != os.path.basename(file_path):
+                        continue
+                    with open(file_path, 'rb') as fr:
+                        # Upload file using presigned URL
+                        response = s.put(presigned_url, data=fr)
+                        if response.status_code == 200:
+                            saved_file_names.append(file_name)
+                            print(f"Upload successful for {file_name}!")
+                        else:
+                            print(f"Upload failed for {file_name} with status code: {response.status_code}")
+                                
+
+    # Prepare text files for final upload
+    text_files_payload = []
+    for file_name, file_path in text_files_to_upload:
+        with open(file_path, 'rb') as fr:
+            text_files_payload.append(('upload[]', (file_name, fr.read())))
+
+    # Upload text files with the final request
+    payload2 = {
+        'saveFileName': ','.join(saved_file_names)
+    }
+    send_task_final = s.post(url=send_task_url, data=payload2, files=text_files_payload)
+    
+    print(f"[INFO] DeSOTA API Upload Response:\n{json.dumps(send_task_final.json(), indent=2)}")
+
+
+    # Delete temporary files if delete_files is True
+    if delete_files:
+        for file_path in file_paths:
+            os.remove(file_path)
+    return send_task_final
